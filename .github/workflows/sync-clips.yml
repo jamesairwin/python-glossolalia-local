@@ -1,6 +1,6 @@
 name: Sync new clips
 
-# Adds streams generated on surfacecollider.net to audio_clips/
+# Replaces the oldest clips in audio_clips/ with streams generated on surfacecollider.net
 on:
   schedule:
     - cron: "17 * * * *"   # hourly
@@ -15,18 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download new clips
+      - name: Install ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Replace clips with new streams
         run: python3 scripts/sync_clips.py
 
-      - name: Commit new clips
+      - name: Commit changes
         run: |
-          git add audio_clips
+          git add -A audio_clips synced_streams.json 2>/dev/null || git add -A audio_clips
           if git diff --cached --quiet; then
-            echo "No new clips"
+            echo "No new streams"
             exit 0
           fi
-          count=$(git diff --cached --name-only | wc -l)
+          count=$(git diff --cached --name-only --diff-filter=A -- audio_clips | wc -l)
           git config user.name "James Irwin"
           git config user.email "unkleirwin@gmail.com"
-          git commit -m "Add $count new clip(s) from surfacecollider.net"
+          git commit -m "Replace $count clip(s) with new audio from surfacecollider.net"
           git push

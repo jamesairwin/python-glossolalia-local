@@ -2,7 +2,7 @@
 
 An offline way to present [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) in a gallery.
 
-The main Python Glossolalia project creates glossolalia (streams of nonsense speech) live. It sends random strings of letters and sounds to the ElevenLabs text-to-speech API, which needs an internet connection and an API key. Galleries often have neither. This repo holds a growing collection of pre-rendered clips from the generator, plus a small player that runs on a Raspberry Pi with no network.
+The main Python Glossolalia project creates glossolalia (streams of nonsense speech) live. It sends random strings of letters and sounds to the ElevenLabs text-to-speech API, which needs an internet connection and an API key. Galleries often have neither. This repo holds 200 pre-rendered clips from the generator, gradually refreshed with new audio, plus a small player that runs on a Raspberry Pi with no network.
 
 This README describes the setup the work was shown with.
 
@@ -26,9 +26,14 @@ The player also recognises a Zoom H4 recorder used as a USB audio interface, and
 - It plays continuously while the Pi is powered. Opening hours are controlled by switching the power on and off at the socket.
 - New clips added to `audio_clips/` join the current cycle without a restart.
 
-## A growing archive
+## A changing collection
 
-The collection started with 200 clips and grows as people use the work online. Each time a visitor generates a stream on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams and commits them to `audio_clips/`.
+The collection always holds 200 clips, but their contents change as people use the work online. Each time a visitor generates a stream (up to 2 minutes) on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams, cuts them up, and uses them to replace the oldest clips:
+
+- Each stream is cut into pieces that match the lengths of the oldest clips, and each piece replaces one clip. The number of clips and their mix of lengths (9 seconds to about 1.5 minutes) stay the same.
+- The original clips (`clip_###.flac`) are replaced first, in number order. After that, the earliest clips from the website are replaced by date, so the collection becomes the most recent 200 clips.
+- A stream usually replaces 3 to 6 clips. Any audio left at the end of a stream that is too short for the next clip goes unused.
+- Each stream is only used once; `synced_streams.json` lists the streams already used.
 
 A Pi that has internet access, even occasionally, pulls these new clips automatically (see [Automatic updates](#automatic-updates)). Without internet, it plays the clips it already has.
 
@@ -37,12 +42,13 @@ A Pi that has internet access, even occasionally, pulls these new clips automati
 | Path | Purpose |
 |---|---|
 | `gallery_player.py` | The player |
-| `audio_clips/` | The clips: the original 200 (`clip_###.flac`) plus streams from the website (`glossolalia_<date>_<time>.mp3`) |
+| `audio_clips/` | The 200 clips: originals (`clip_###.flac`) and pieces of website streams (`glossolalia_<date>_<time>_<piece>.flac`) |
 | `glossolalia-gallery.service` | systemd service that starts the player automatically on boot |
 | `glossolalia-update.service`, `glossolalia-update.timer` | systemd timer that pulls new clips from GitHub every hour |
-| `scripts/sync_clips.py`, `.github/workflows/sync-clips.yml` | The hourly GitHub Action that adds new streams from the website |
+| `scripts/sync_clips.py`, `.github/workflows/sync-clips.yml` | The hourly GitHub Action that replaces clips with new streams from the website |
+| `synced_streams.json` | Website streams already used (created by the first sync) |
 
-The original 200 clips are FLAC (16-bit, 48 kHz, mono), a lossless format. Streams from the website are kept as the MP3s ElevenLabs produces, each up to 2 minutes long.
+All clips are FLAC (16-bit, 48 kHz, mono), a lossless format.
 
 ## Setup on the Raspberry Pi
 

@@ -118,6 +118,8 @@ def main():
             print(f"Added {len(new_files)} new clip(s)", flush=True)
             unplayed_files += new_files
             known_files.update(new_files)
+        # Clips replaced by newer audio drop out of the cycle
+        known_files.intersection_update(files)
         unplayed_files = [f for f in unplayed_files if f in files]
 
         if not unplayed_files:
