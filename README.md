@@ -30,7 +30,8 @@ The player also recognises a Zoom H4 recorder used as a USB audio interface, and
 
 The collection always holds 200 clips, but their contents change as people use the work online. Each time a visitor generates a stream (up to 2 minutes) on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams, cuts them up, and uses them to replace the oldest clips:
 
-- Each stream is cut into pieces that match the lengths of the oldest clips, and each piece replaces one clip. The number of clips and their mix of lengths (9 seconds to about 1.5 minutes) stay the same.
+- Each stream is cut into pieces close to the lengths of the oldest clips, and each piece replaces one clip. The number of clips and their mix of lengths (9 seconds to about 1.5 minutes) stay the same.
+- Cuts are made at natural pauses in the speech, at the pause nearest the target length (within 25%, or 2 seconds for short clips). If there's no pause in that range, the cut is made at the exact length with a very short fade.
 - The original clips (`clip_###.flac`) are replaced first, in number order. After that, the earliest clips from the website are replaced by date, so the collection becomes the most recent 200 clips.
 - A stream usually replaces 3 to 6 clips. Any audio left at the end of a stream that is too short for the next clip goes unused.
 - Each stream is only used once; `synced_streams.json` lists the streams already used.
