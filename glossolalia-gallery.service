@@ -1,0 +1,15 @@
+[Unit]
+Description=Python Glossolalia gallery player
+After=sound.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__DIR__
+ExecStart=/usr/bin/python3 -u __DIR__/gallery_player.py
+# Retries until the USB interface is plugged in and powered, and after any crash
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
