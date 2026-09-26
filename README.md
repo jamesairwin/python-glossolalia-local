@@ -2,7 +2,7 @@
 
 An offline way to present [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) in a gallery.
 
-The main Python Glossolalia project creates glossolalia (streams of nonsense speech) live. It sends random strings of letters and sounds to the ElevenLabs text-to-speech API, which needs an internet connection and an API key. Galleries often have neither. This repo holds a set of 200 pre-rendered clips from the generator, plus a small player that runs on a Raspberry Pi with no network.
+The main Python Glossolalia project creates glossolalia (streams of nonsense speech) live. It sends random strings of letters and sounds to the ElevenLabs text-to-speech API, which needs an internet connection and an API key. Galleries often have neither. This repo holds a growing collection of pre-rendered clips from the generator, plus a small player that runs on a Raspberry Pi with no network.
 
 This README describes the setup the work was shown with.
 
@@ -24,23 +24,32 @@ The player also recognises a Zoom H4 recorder used as a USB audio interface, and
 - Every clip plays once before any clip repeats, and the same clip never plays twice in a row.
 - It saves its progress to `gallery_audio_state.json` after each clip. After a restart or power cut, it carries on with the same cycle.
 - It plays continuously while the Pi is powered. Opening hours are controlled by switching the power on and off at the socket.
+- New clips added to `audio_clips/` join the current cycle without a restart.
+
+## A growing archive
+
+The collection started with 200 clips and grows as people use the work online. Each time a visitor generates a stream on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams and commits them to `audio_clips/`.
+
+A Pi that has internet access, even occasionally, pulls these new clips automatically (see [Automatic updates](#automatic-updates)). Without internet, it plays the clips it already has.
 
 ## Contents
 
 | Path | Purpose |
 |---|---|
 | `gallery_player.py` | The player |
-| `audio_clips/` | 200 glossolalia clips (FLAC, 16-bit, 48 kHz, mono; about 235 MB) |
+| `audio_clips/` | The clips: the original 200 (`clip_###.flac`) plus streams from the website (`glossolalia_<date>_<time>.mp3`) |
 | `glossolalia-gallery.service` | systemd service that starts the player automatically on boot |
+| `glossolalia-update.service`, `glossolalia-update.timer` | systemd timer that pulls new clips from GitHub every hour |
+| `scripts/sync_clips.py`, `.github/workflows/sync-clips.yml` | The hourly GitHub Action that adds new streams from the website |
 
-The clips are FLAC, a lossless format: the audio is identical to the original WAVs at a third of the size.
+The original 200 clips are FLAC (16-bit, 48 kHz, mono), a lossless format. Streams from the website are kept as the MP3s ElevenLabs produces, each up to 2 minutes long.
 
 ## Setup on the Raspberry Pi
 
-1. Install the tools the player needs: `flac` decodes the clips and `aplay` plays them.
+1. Install the tools the player needs: `flac` and `mpg123` decode the clips, and `aplay` plays them.
    ```bash
    sudo apt update
-   sudo apt install git flac alsa-utils
+   sudo apt install git flac mpg123 alsa-utils
    ```
 
 2. Clone this repository.
@@ -87,12 +96,31 @@ sudo systemctl stop glossolalia-gallery    # stop it
 sudo systemctl disable glossolalia-gallery # don't start on boot
 ```
 
+## Automatic updates
+
+To have the Pi collect new clips from GitHub every hour, install the update timer from the repo folder:
+
+```bash
+sed "s|__USER__|$USER|g; s|__DIR__|$PWD|g" glossolalia-update.service \
+  | sudo tee /etc/systemd/system/glossolalia-update.service
+sudo cp glossolalia-update.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now glossolalia-update.timer
+```
+
+It checks two minutes after boot and then every hour. When there's no internet, the check fails quietly and the player carries on with the clips it has. To check for updates straight away, run `git pull` in the repo folder.
+
+```bash
+systemctl list-timers glossolalia-update   # when it last ran and runs next
+journalctl -u glossolalia-update           # output from each check
+```
+
 ## Settings
 
 You can pass options on the command line (add them to the `ExecStart` line in the service file to make them permanent):
 
 ```bash
-python3 gallery_player.py --audio-dir /path/to/clips   # use a different folder of .flac clips
+python3 gallery_player.py --audio-dir /path/to/clips   # use a different folder of .flac/.mp3 clips
 python3 gallery_player.py --device "USB Audio"         # use another interface (any text from its `aplay -l` line)
 ```
 
@@ -102,7 +130,7 @@ To start the cycle again from scratch, stop the player and delete `gallery_audio
 
 ## Using your own clips
 
-Put `.flac` files in `audio_clips/` (or point `--audio-dir` somewhere else). You can convert other formats with FFmpeg:
+Put `.flac` or `.mp3` files in `audio_clips/`, or point `--audio-dir` somewhere else. You can convert other formats with FFmpeg:
 
 ```bash
 ffmpeg -i clip.wav -c:a flac clip.flac

@@ -1,0 +1,9 @@
+[Unit]
+Description=Check GitHub for new Python Glossolalia clips every hour
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

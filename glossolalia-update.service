@@ -1,0 +1,11 @@
+[Unit]
+Description=Pull new Python Glossolalia clips from GitHub
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=__USER__
+WorkingDirectory=__DIR__
+# Fails harmlessly when offline; the player keeps using the clips it has
+ExecStart=/usr/bin/git pull --ff-only --quiet

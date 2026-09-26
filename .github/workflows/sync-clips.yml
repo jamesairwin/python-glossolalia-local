@@ -1,0 +1,32 @@
+name: Sync new clips
+
+# Adds streams generated on surfacecollider.net to audio_clips/
+on:
+  schedule:
+    - cron: "17 * * * *"   # hourly
+  workflow_dispatch:        # "Run workflow" button on the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download new clips
+        run: python3 scripts/sync_clips.py
+
+      - name: Commit new clips
+        run: |
+          git add audio_clips
+          if git diff --cached --quiet; then
+            echo "No new clips"
+            exit 0
+          fi
+          count=$(git diff --cached --name-only | wc -l)
+          git config user.name "James Irwin"
+          git config user.email "unkleirwin@gmail.com"
+          git commit -m "Add $count new clip(s) from surfacecollider.net"
+          git push
