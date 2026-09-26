@@ -1,4 +1,4 @@
-# Python Glossolalia: Gallery Player
+# Python Glossolalia Local
 
 An offline way to present [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) in a gallery.
 
@@ -46,8 +46,8 @@ The clips are FLAC, a lossless format: the audio is identical to the original WA
 2. Clone this repository.
    ```bash
    cd ~
-   git clone https://github.com/jamesairwin/python-glossolalia-gallery.git
-   cd python-glossolalia-gallery
+   git clone https://github.com/jamesairwin/python-glossolalia-local.git
+   cd python-glossolalia-local
    ```
 
 3. Connect the mixer by USB and switch it on. Check that the Pi can see it:
