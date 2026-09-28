@@ -1,10 +1,10 @@
 # Python Glossolalia Local
 
-An offline version of [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) that has been designed to run locally on a Raspberry Pi.
+An offline version of [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) designed to run locally on a Raspberry Pi without needing the live API.
 
-The main Python Glossolalia project prompts a Linux server to speak in tongues in real time. It sends random strings of graphemes to the ElevenLabs text-to-speech API, and is dependent on an internet connection, an API key and available subscription credits on the linked ElevenLabs account. This repo holds 200 pre-rendered clips that have been recorded via live playback. When new audio is generated through the live stream at https://surfacecollider.net/python-glossolalia, the audio clips folder is refreshed with the new sounds. The audio the local version of this project produces is continually evolving through its network connection to the API version.
+The main Python Glossolalia project prompts a Linux server to speak in tongues in real time. It sends random strings of graphemes to the ElevenLabs text-to-speech API, and is dependent on an internet connection, an API key and available subscription credits on the linked ElevenLabs account. This repo holds 200 pre-rendered clips that have been recorded via live playback. When new audio is generated through the live stream at [surfacecollider.net/python-glossolalia](https://surfacecollider.net/python-glossolalia), the audio clips folder is refreshed with the new sounds. The audio the local version of this project produces is continually evolving through its network connection to the API version.
 
-This README describes the setup the work was shown with.
+This README provides installation instructions.
 
 ## Installation setup
 
@@ -28,7 +28,7 @@ The player also recognises a Zoom H4 recorder used as a USB audio interface. You
 
 ## A changing collection
 
-The collection always holds 200 clips, but their contents change as people use the work online. Each time a visitor generates a stream (up to 2 minutes) on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams, cuts them up, and uses them to replace the oldest clips:
+The collection always holds 200 clips, but their contents change as people use the work online. Each time a visitor generates a stream (up to 2 minutes) on the [Python Glossolalia page on surfacecollider.net](https://surfacecollider.net/python-glossolalia), the website keeps a copy. Every hour, a GitHub Action ([`sync-clips.yml`](.github/workflows/sync-clips.yml)) collects any new streams, cuts them up, and uses them to replace the oldest clips:
 
 - Each stream is cut into pieces close to the lengths of the oldest clips, and each piece replaces one clip. The number of clips and their mix of lengths (9 seconds to about 1.5 minutes) stay the same.
 - Cuts are made at natural pauses in the speech, at the pause nearest the target length (within 25%, or 2 seconds for short clips). If there's no pause in that range, the cut is made at the exact length with a very short fade.
