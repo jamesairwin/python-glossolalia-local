@@ -1,8 +1,8 @@
 # Python Glossolalia Local
 
-An offline way to present [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) in a gallery.
+An offline version of [Python Glossolalia](https://github.com/jamesairwin/python-glossolalia) that has been designed to run locally on a Raspberry Pi.
 
-The main Python Glossolalia project creates glossolalia (streams of nonsense speech) live. It sends random strings of letters and sounds to the ElevenLabs text-to-speech API, which needs an internet connection and an API key. Galleries often have neither. This repo holds 200 pre-rendered clips from the generator, gradually refreshed with new audio, plus a small player that runs on a Raspberry Pi with no network.
+The main Python Glossolalia project prompts a Linux server to speak in tongues in real time. It sends random strings of graphemes to the ElevenLabs text-to-speech API, and is dependent on an internet connection, an API key and available subscription credits on the linked ElevenLabs account. This repo holds 200 pre-rendered clips that have been recorded via live playback. When new audio is generated through the live stream at https://surfacecollider.net/python-glossolalia, the audio clips folder is refreshed with the new sounds. The audio the local version of this project produces is continually evolving through its network connection to the API version.
 
 This README describes the setup the work was shown with.
 
@@ -16,11 +16,11 @@ Raspberry Pi  ──USB──▶  Yamaha MG-XU mixer  ──main out──▶  a
 - **Yamaha MG-XU series mixer**, connected by USB. The Pi treats the mixer as its sound card, so the Pi's own headphone jack and HDMI audio are not used. The mixer controls the overall level.
 - **Active (powered) speaker** connected to the mixer's main output.
 
-The player also recognises a Zoom H4 recorder used as a USB audio interface, and you can name any other USB interface (see [Settings](#settings)).
+The player also recognises a Zoom H4 recorder used as a USB audio interface. You can name any other USB interface (see [Settings](#settings)).
 
 ## What it does
 
-- It picks a random clip from `audio_clips/`, plays it in full, then waits a random 30 seconds to 5 minutes before the next one.
+- It picks a random clip from `audio_clips/`, plays it in full, then waits a random 30 seconds to 5 minutes before playing the next random clip.
 - Every clip plays once before any clip repeats, and the same clip never plays twice in a row.
 - It saves its progress to `gallery_audio_state.json` after each clip. After a restart or power cut, it carries on with the same cycle.
 - It plays continuously while the Pi is powered. Opening hours are controlled by switching the power on and off at the socket.
