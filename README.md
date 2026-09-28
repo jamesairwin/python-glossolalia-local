@@ -4,7 +4,7 @@ An offline version of [Python Glossolalia](https://github.com/jamesairwin/python
 
 The main Python Glossolalia project prompts a Linux server to speak in tongues in real time. It sends random strings of graphemes to the ElevenLabs text-to-speech API, and is dependent on an internet connection, an API key and available subscription credits on the linked ElevenLabs account. This repo holds 200 pre-rendered clips that have been recorded via live playback. When new audio is generated through the live stream at [surfacecollider.net/python-glossolalia](https://surfacecollider.net/python-glossolalia), the audio clips folder is refreshed with the new sounds. The audio the local version of this project produces is continually evolving through its network connection to the API version.
 
-This README provides installation instructions.
+This README explains how the player works and how to install it.
 
 ## Installation setup
 
